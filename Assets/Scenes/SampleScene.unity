@@ -402,7 +402,6 @@ GameObject:
   - component: {fileID: 330585546}
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
-  - component: {fileID: 330585547}
   - component: {fileID: 330585549}
   - component: {fileID: 330585548}
   m_Layer: 0
@@ -452,7 +451,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 100000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -479,57 +478,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalRotation: {x: 1.3877788e-17, y: 1, z: 4.1633363e-17, w: 0}
   m_LocalPosition: {x: -3.1, y: 103.2, z: -196}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 800873882}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!114 &330585547
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330585543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_RenderShadows: 1
-  m_RequiresDepthTextureOption: 2
-  m_RequiresOpaqueTextureOption: 2
-  m_CameraType: 0
-  m_Cameras: []
-  m_RendererIndex: -1
-  m_VolumeLayerMask:
-    serializedVersion: 2
-    m_Bits: 1
-  m_VolumeTrigger: {fileID: 0}
-  m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 1
-  m_Antialiasing: 0
-  m_AntialiasingQuality: 2
-  m_StopNaN: 0
-  m_Dithering: 0
-  m_ClearDepth: 1
-  m_AllowXRRendering: 1
-  m_AllowHDROutput: 1
-  m_UseScreenCoordOverride: 0
-  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
-  m_RequiresDepthTexture: 0
-  m_RequiresColorTexture: 0
-  m_Version: 2
-  m_TaaSettings:
-    m_Quality: 3
-    m_FrameInfluence: 0.1
-    m_JitterScale: 1
-    m_MipBias: 0
-    m_VarianceClampScale: 0.9
-    m_ContrastAdaptiveSharpening: 0
 --- !u!114 &330585548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -559,26 +514,26 @@ MonoBehaviour:
   _detectTransformChanges: 1
   _localToGlobeFixedMatrix:
     c0:
-      x: 1
-      y: 0
+      x: -0.979447905606328
+      y: -0.20169729845334392
       z: 0
       w: 0
     c1:
-      x: 0
-      y: 1
-      z: 0
+      x: 0.1617179580235645
+      y: -0.7853070740149336
+      z: 0.5976119991723663
       w: 0
     c2:
-      x: 0
-      y: 0
-      z: 1
+      x: 0.12053672575636828
+      y: -0.5853298209545847
+      z: -0.8017854441465045
       w: 0
     c3:
-      x: 0
-      y: 0
-      z: 0
+      x: 1032734.3205574967
+      y: -5015003.051970473
+      z: 3790582.4455255764
       w: 1
-  _localToGlobeFixedMatrixIsValid: 0
+  _localToGlobeFixedMatrixIsValid: 1
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -794,7 +749,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7704070988839058832, guid: 8f62ea7590cd2db4aa64fd8990bd2565, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 2.9843687e-11
+      value: 2.9843693e-11
       objectReference: {fileID: 0}
     - target: {fileID: 7704070988839058832, guid: 8f62ea7590cd2db4aa64fd8990bd2565, type: 3}
       propertyPath: m_LocalRotation.z
@@ -888,6 +843,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 330585546}
   - {fileID: 876430611}
   - {fileID: 1454527072}
   - {fileID: 1825026723}
@@ -1673,17 +1629,17 @@ MonoBehaviour:
   _detectTransformChanges: 1
   _localToGlobeFixedMatrix:
     c0:
-      x: 0.9794494538163797
-      y: 0.20168978007341162
-      z: 0.000005721356591077539
+      x: 0.9794494538163399
+      y: 0.20168978007360558
+      z: 0.000005721356443458202
       w: 0
     c1:
-      x: 0.16170827953193906
-      y: -0.7853075409686958
+      x: 0.16170827953218095
+      y: -0.7853075409686461
       z: 0.597614004545175
       w: 0
     c2:
-      x: -0.12053713016998271
+      x: -0.1205371301699827
       y: 0.5853317851540601
       z: 0.8017839494145199
       w: 0
@@ -1774,7 +1730,6 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 330585546}
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 800873882}
