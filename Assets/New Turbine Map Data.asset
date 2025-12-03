@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 968444bfae6f85a499e89d9140d3235a, type: 3}
+  m_Name: New Turbine Map Data
+  m_EditorClassIdentifier: 
+  csvFile: {fileID: 4900000, guid: 496e466cc762acc49b709491749ed7f6, type: 3}
+  turbinePositions:
+  - id: T98
+    latitude: 36.701280940410236
+    longitude: -78.37349369522605
+    orientation: 140
+  - id: T99
+    latitude: 36.70121066260686
+    longitude: -78.37004458072485
+    orientation: 140
+  - id: T100
+    latitude: 36.69859593262326
+    longitude: -78.36089205366316
+    orientation: 140
+  - id: T101
+    latitude: 36.700911263227624
+    longitude: -78.35853116509533
+    orientation: 140
+  - id: T102
+    latitude: 36.6979
+    longitude: -78.35755
+    orientation: 140
+  - id: T103
+    latitude: 36.699
+    longitude: -78.365
+    orientation: 140
+  - id: T104
+    latitude: 36.696968443703085
+    longitude: -78.35517620065849
+    orientation: 140
+  - id: T105
+    latitude: 36.69391412
+    longitude: -78.3678
+    orientation: 140
+  - id: T106
+    latitude: 36.69492648093213
+    longitude: -78.36498476136161
+    orientation: 140
+  - id: T107
+    latitude: 36.694616949789854
+    longitude: -78.36130362263394
+    orientation: 140
