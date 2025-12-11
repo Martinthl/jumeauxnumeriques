@@ -15,7 +15,6 @@ public class TurbineSpawner : MonoBehaviour
 
     void SpawnAll()
     {
-        // Sécurité : on vérifie qu'on a bien les données
         if (mapData == null || TurbinePrefab == null)
         {
             Debug.LogError("Il manque le Prefab ou les Données dans le Spawner !");
@@ -33,7 +32,6 @@ public class TurbineSpawner : MonoBehaviour
             
             if (anchor != null)
             {
-                // CORRECTION ICI : On utilise la propriété direct avec double3
                 // L'ordre est bien : Longitude (X), Latitude (Y), Hauteur (Z)
                 anchor.longitudeLatitudeHeight = new double3(data.longitude, data.latitude, 0);
             }

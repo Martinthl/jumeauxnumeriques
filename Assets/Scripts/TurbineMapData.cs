@@ -14,7 +14,7 @@ public class TurbineMapData : ScriptableObject
         public float orientation;
     }
 
-    public TextAsset csvFile; // Glisse le fichier TurbinePositions.csv ici
+    public TextAsset csvFile; 
     public List<MapEntry> turbinePositions = new List<MapEntry>();
 
     [ContextMenu("Importer Positions")]
@@ -25,7 +25,6 @@ public class TurbineMapData : ScriptableObject
         turbinePositions.Clear();
         string[] lines = csvFile.text.Split('\n');
 
-        // On commence à 1 pour sauter le titre
         for (int i = 1; i < lines.Length; i++)
         {
             string line = lines[i].Trim();
@@ -36,7 +35,6 @@ public class TurbineMapData : ScriptableObject
             {
                 MapEntry entry = new MapEntry();
                 entry.id = cols[0];
-                // CultureInfo.InvariantCulture est vital pour gérer les points "." des coordonnées
                 double.TryParse(cols[1], NumberStyles.Any, CultureInfo.InvariantCulture, out entry.latitude);
                 double.TryParse(cols[2], NumberStyles.Any, CultureInfo.InvariantCulture, out entry.longitude);
                 float.TryParse(cols[3], NumberStyles.Any, CultureInfo.InvariantCulture, out entry.orientation);
