@@ -1,32 +1,36 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using CesiumForUnity; // Pour bouger la caméra
-using Unity.Mathematics; // Pour les maths Cesium
+using CesiumForUnity; 
+using Unity.Mathematics; 
 using System.Collections.Generic;
-using DG.Tweening;
+using DG.Tweening; // Pour l'animation caméra
 
 public class MasterDashboardManager : MonoBehaviour
 {
     [Header("Configuration")]
-    public GameObject buttonTemplatePrefab; // Le bouton qu'on a créé
-    public Transform listContainer;         // L'objet "Content" de la ScrollView
+    public GameObject buttonTemplatePrefab; 
+    public Transform listContainer;         
     
     [Header("Données")]
-    public TurbineMapData mapData;          // Pour avoir la liste des IDs et positions
-    public TurbineCSVData statsData;        // Pour avoir les stats (Vent, Puissance)
+    public TurbineMapData mapData;          
+    public TurbineCSVData statsData;        
 
-    [Header("UI Détails")]
-    public TMP_Text titleText;              // Titre à droite (ex: T98)
+    [Header("UI Détails - Base")]
+    public TMP_Text titleText;              
     public TMP_Text powerText;
     public TMP_Text windText;
-    
-    [Header("Navigation 3D")]
-    public Transform cameraTransform;       // Ta Main Camera
-    public CesiumGeoreference georeference; // Référence Cesium
-    public float zoomDistance = 100.0f;     // Distance de la caméra
 
-    public WindowGraph powerGraph; // Référence au script graphique
+    [Header("UI Détails - Avancé")]
+    public TMP_Text tempText;
+    public TMP_Text rotorText;
+    public TMP_Text dateText;
+    
+    // (J'ai supprimé la partie Preview 3D ici)
+
+    [Header("Navigation 3D")]
+    public Transform cameraTransform;       
+    public WindowGraph powerGraph; 
 
     private string currentSelectedID = "";
 
@@ -37,62 +41,47 @@ public class MasterDashboardManager : MonoBehaviour
 
     void Update()
     {
-        // Mise à jour en temps réel des stats si une turbine est sélectionnée
         if (!string.IsNullOrEmpty(currentSelectedID))
         {
             UpdateStatsUI(currentSelectedID);
         }
     }
 
-    // 1. Générer le tableau
     void GenerateList()
     {
-        // Nettoyer la liste existante si besoin
+        // Nettoyage de la liste
         foreach (Transform child in listContainer) Destroy(child.gameObject);
 
+        // Création des boutons
         foreach (var turbine in mapData.turbinePositions)
         {
-            // Créer un bouton
             GameObject btn = Instantiate(buttonTemplatePrefab, listContainer);
-            
-            // Changer le texte du bouton
             btn.GetComponentInChildren<TMP_Text>().text = "Turbine " + turbine.id;
-
-            // Ajouter l'action au clic
             btn.GetComponent<Button>().onClick.AddListener(() => OnTurbineSelected(turbine.id));
         }
     }
 
-    // 2. Quand on clique sur une ligne du tableau
     public void OnTurbineSelected(string id)
     {
         currentSelectedID = id;
-        titleText.text = "Turbine " + id;
+        if(titleText) titleText.text = "Turbine " + id;
         
-        // Focus Caméra
+        // Déplacement de la caméra
         FocusCameraOnTurbine(id);
 
-         // --- AJOUT GRAPH ---
+        // Mise à jour du Graphique
         if (powerGraph != null)
         {
-            // On récupère toutes les données de puissance de cette éolienne
             var data = statsData.turbines.Find(t => t.turbineID == id);
             if (data != null)
             {
-                // On crée une liste simple de float pour le graph
                 List<float> powerValues = new List<float>();
-                foreach(var entry in data.entries)
-                {
-                    powerValues.Add(entry.power);
-                }
-            
-                // On dessine !
+                foreach(var entry in data.entries) powerValues.Add(entry.power);
                 powerGraph.ShowGraph(powerValues);
             }
         }
     }
 
-    // 3. Mettre à jour les chiffres (comme avant)
     void UpdateStatsUI(string id)
     {
         float currentTime = TimeManager.Instance.currentTimeInSeconds;
@@ -104,47 +93,43 @@ public class MasterDashboardManager : MonoBehaviour
             index = Mathf.Clamp(index, 0, data.entries.Count - 1);
             var entry = data.entries[index];
 
-            powerText.text = $"Puissance : {entry.power:F2} kW";
-            windText.text = $"Vent : {entry.windSpeed:F1} m/s";
+            // Affichage des Textes
+            if(powerText) powerText.text = $"{entry.power:F2} kW";
+            if(windText) windText.text = $"{entry.windSpeed:F1} m/s";
+            if(tempText) tempText.text = $"{entry.ambientTemperature:F1} °C";
+            if(rotorText) rotorText.text = $"{entry.rotorSpeed:F1} RPM";
+            if(dateText) dateText.text = entry.timeInterval; 
         }
     }
 
-    // 4. Déplacer la caméra (Fini la vue de dessus !)
     void FocusCameraOnTurbine(string id)
     {
-        // 1. Chercher l'éolienne (comme avant)
         TurbineIdentifier[] allTurbines = FindObjectsByType<TurbineIdentifier>(FindObjectsSortMode.None);
+        Transform targetTurbine = null;
 
-        foreach (var turbine in allTurbines)
+        foreach (var t in allTurbines)
         {
-            if (turbine.id == id)
+            if (t.id == id)
             {
-                // Position de la cible (pied de l'éolienne)
-                Vector3 targetPos = turbine.transform.position;
-
-                // Position de la caméra (Vue Drone : 30m haut, 60m arrière)
-                Vector3 endPosition = targetPos + new Vector3(0, 30f, -60f);
-                
-                // Point que la caméra doit regarder (le rotor, ~60m de haut)
-                Vector3 lookAtPosition = targetPos + new Vector3(0, 60f, 0);
-
-                // --- LE MAGIE DOTWEEN COMMENCE ICI ---
-
-                // A. On tue les animations en cours (si on clique frénétiquement)
-                cameraTransform.DOKill(); 
-
-                // B. On déplace la caméra vers la position finale
-                // DOMove(destination, durée)
-                cameraTransform.DOMove(endPosition, 2.0f).SetEase(Ease.InOutCubic);
-
-                // C. En même temps, on tourne la caméra pour regarder l'éolienne
-                // DOLookAt(cible, durée)
-                cameraTransform.DOLookAt(lookAtPosition, 2.0f).SetEase(Ease.InOutCubic);
-
-                Debug.Log("Vol vers : " + id);
-                return;
+                targetTurbine = t.transform;
+                break;
             }
         }
-        Debug.LogWarning("Éolienne introuvable pour le vol : " + id);
+
+        if (targetTurbine != null)
+        {
+            cameraTransform.DOKill(); 
+
+            // Positionnement derrière l'éolienne
+            Vector3 targetPosition = targetTurbine.position - (targetTurbine.forward * 80f) + (Vector3.up * 40f);
+            Vector3 lookAtTarget = targetTurbine.position + (Vector3.up * 60f);
+
+            cameraTransform.DOMove(targetTurbine.GetChild(2).transform.position, 2f).SetEase(Ease.OutCubic);
+            cameraTransform.DOLookAt(lookAtTarget, 2f).SetEase(Ease.OutCubic);
+        }
+        else
+        {
+            Debug.LogWarning($"Éolienne {id} introuvable.");
+        }
     }
 }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System;
+using System; // Nécessaire pour convertir les secondes en Heures:Minutes
 
 public class TimeManager : MonoBehaviour
 {
@@ -9,11 +9,11 @@ public class TimeManager : MonoBehaviour
 
     [Header("UI")]
     public Slider timeSlider;
-    public TMP_Text timeDisplayText;
+    public TMP_Text timeDisplayText; // Le texte 00:00:00
 
-    [Header("Temps Actuel")]
+    [Header("Temps")]
     [Range(0, 86400)]
-    public float currentTimeInSeconds = 28800; // Commence à 08:00 par défaut
+    public float currentTimeInSeconds = 28800; // Commence à 08:00
 
     void Awake()
     {
@@ -22,21 +22,16 @@ public class TimeManager : MonoBehaviour
 
     void Start()
     {
-        // Initialiser le slider
         if (timeSlider != null)
         {
-            timeSlider.maxValue = 86400;
+            timeSlider.maxValue = 86400; // 24h en secondes
+            timeSlider.wholeNumbers = true;
             timeSlider.value = currentTimeInSeconds;
-            // Quand on bouge le slider, on met à jour le temps
+            
+            // Écouter le changement de valeur
             timeSlider.onValueChanged.AddListener(OnSliderChanged);
         }
-    }
-
-    void Update()
-    {
-        // Optionnel : Faire avancer le temps automatiquement (Play)
-        // currentTimeInSeconds += Time.deltaTime * 60; // 1 seconde réelle = 1 minute jeu
-        // UpdateUI();
+        UpdateUI();
     }
 
     public void OnSliderChanged(float value)
@@ -47,11 +42,13 @@ public class TimeManager : MonoBehaviour
 
     void UpdateUI()
     {
+        // Calcul mathématique pour transformer 3600 secondes en "01:00:00"
+        TimeSpan timeSpan = TimeSpan.FromSeconds(currentTimeInSeconds);
+        string timeString = string.Format("{0:00}:{1:00}:{2:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+
         if (timeDisplayText != null)
         {
-            // Convertir secondes en HH:mm:ss
-            TimeSpan ts = TimeSpan.FromSeconds(currentTimeInSeconds);
-            timeDisplayText.text = string.Format("{0:00}:{1:00}:{2:00}", ts.Hours, ts.Minutes, ts.Seconds);
+            timeDisplayText.text = timeString;
         }
     }
 }

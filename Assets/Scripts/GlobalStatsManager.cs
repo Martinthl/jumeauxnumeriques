@@ -1,66 +1,52 @@
 using UnityEngine;
 using TMPro;
-using System.Linq; // Indispensable pour les calculs de listes
-using DG.Tweening;
-
 
 public class GlobalStatsManager : MonoBehaviour
 {
-    [Header("UI")]
+    [Header("UI Page Global")]
     public GameObject globalPanel;
-    public TMP_Text totalPowerText;
-    public TMP_Text avgWindText;
-    public GameObject individualPanel;
+    public TMP_Text totalPowerText; // Puissance Totale
+    public TMP_Text avgWindText;    // Vent Moyen
+    public TMP_Text avgTempText;    // Température Moyenne (NOUVEAU)
+    public TMP_Text avgRotorText;   // Vitesse Rotor Moyenne (NOUVEAU)
+
+    [Header("Autre")]
+    public GameObject individualPanel; // Page Détails (pour la cacher)
 
     [Header("Données")]
     public TurbineCSVData productionData; 
-    
-    public Transform cameraTransform; // Ta Main Camera
-    public Transform globalViewPoint; // Un objet vide placé haut dans le ciel
 
-    // Instance pour l'appeler depuis le bouton
     public static GlobalStatsManager Instance;
 
     void Awake()
     {
         Instance = this;
-        if(globalPanel != null) globalPanel.SetActive(false);
     }
 
     void Update()
     {
-        // Si le panneau global est ouvert, on met à jour en temps réel
-        if (globalPanel.activeSelf)
+        // On met à jour seulement si la page globale est visible
+        if (globalPanel != null && globalPanel.activeSelf)
         {
             UpdateGlobalStats();
-        }
-    }
-
-    public void ToggleGlobalView()
-    {
-        bool isActive = !globalPanel.activeSelf;
-        globalPanel.SetActive(isActive);
-
-        // Si on ouvre le global, on ferme le panneau individuel pour faire propre
-        if (isActive && individualPanel != null)
-        {
-            individualPanel.SetActive(false);
-            // Optionnel : Réinitialiser la caméra ou dé-sélectionner l'éolienne
         }
     }
 
     void UpdateGlobalStats()
     {
         float currentTime = TimeManager.Instance.currentTimeInSeconds;
+        
         float totalPower = 0f;
         float totalWind = 0f;
-        int activeTurbineCount = 0;
+        float totalTemp = 0f;  // NOUVEAU
+        float totalRotor = 0f; // NOUVEAU
+        
+        int count = 0;
 
-        // On parcourt TOUTES les éoliennes du fichier CSV
+        // On parcourt toutes les turbines
         foreach (var turbine in productionData.turbines)
         {
-            // On cherche la donnée à l'instant T pour cette turbine
-            // (Même logique que le Dashboard individuel)
+            // On cherche la ligne correspondant à l'heure du slider
             int index = Mathf.FloorToInt((currentTime / 86400f) * turbine.entries.Count);
             index = Mathf.Clamp(index, 0, turbine.entries.Count - 1);
 
@@ -68,28 +54,21 @@ public class GlobalStatsManager : MonoBehaviour
 
             totalPower += entry.power;
             totalWind += entry.windSpeed;
-            activeTurbineCount++;
+            totalTemp += entry.ambientTemperature; // NOUVEAU
+            totalRotor += entry.rotorSpeed;        // NOUVEAU
+            
+            count++;
         }
 
         // Affichage
-        totalPowerText.text = $"Puissance Totale : {totalPower:F2} kW";
-        
-        if (activeTurbineCount > 0)
-            avgWindText.text = $"Vent Moyen : {(totalWind / activeTurbineCount):F1} m/s";
-        else
-            avgWindText.text = "Vent Moyen : 0 m/s";
-    }
-
-
-    public void ResetCamera()
-    {
-        if(cameraTransform != null && globalViewPoint != null)
+        if (count > 0)
         {
-            cameraTransform.DOKill(); // Arrête tout mouvement en cours
+            if(totalPowerText) totalPowerText.text = $"Puissance Totale du Parc : {totalPower:F0} kW";
+            if(avgWindText) avgWindText.text = $"Vent Moyen : {(totalWind / count):F1} m/s";
             
-            // Vol vers le point global
-            cameraTransform.DOMove(globalViewPoint.position, 2.5f).SetEase(Ease.InOutSine);
-            cameraTransform.DORotate(globalViewPoint.rotation.eulerAngles, 2.5f).SetEase(Ease.InOutSine);
+            // NOUVEAUX AFFICHAGES
+            if(avgTempText) avgTempText.text = $"Température Moyenne : {(totalTemp / count):F1} °C";
+            if(avgRotorText) avgRotorText.text = $"Vitesse Rotor Moyenne : {(totalRotor / count):F1} RPM";
         }
     }
 }
