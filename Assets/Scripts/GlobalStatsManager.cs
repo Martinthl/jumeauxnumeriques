@@ -1,6 +1,8 @@
 using UnityEngine;
 using TMPro;
 using System.Linq; // Indispensable pour les calculs de listes
+using DG.Tweening;
+
 
 public class GlobalStatsManager : MonoBehaviour
 {
@@ -83,8 +85,11 @@ public class GlobalStatsManager : MonoBehaviour
     {
         if(cameraTransform != null && globalViewPoint != null)
         {
-            cameraTransform.position = globalViewPoint.position;
-            cameraTransform.rotation = globalViewPoint.rotation;
+            cameraTransform.DOKill(); // Arrête tout mouvement en cours
+            
+            // Vol vers le point global
+            cameraTransform.DOMove(globalViewPoint.position, 2.5f).SetEase(Ease.InOutSine);
+            cameraTransform.DORotate(globalViewPoint.rotation.eulerAngles, 2.5f).SetEase(Ease.InOutSine);
         }
     }
 }

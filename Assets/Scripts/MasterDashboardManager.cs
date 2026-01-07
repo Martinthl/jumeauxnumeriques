@@ -4,6 +4,7 @@ using TMPro;
 using CesiumForUnity; // Pour bouger la caméra
 using Unity.Mathematics; // Pour les maths Cesium
 using System.Collections.Generic;
+using DG.Tweening;
 
 public class MasterDashboardManager : MonoBehaviour
 {
@@ -70,6 +71,25 @@ public class MasterDashboardManager : MonoBehaviour
         
         // Focus Caméra
         FocusCameraOnTurbine(id);
+
+         // --- AJOUT GRAPH ---
+        if (powerGraph != null)
+        {
+            // On récupère toutes les données de puissance de cette éolienne
+            var data = statsData.turbines.Find(t => t.turbineID == id);
+            if (data != null)
+            {
+                // On crée une liste simple de float pour le graph
+                List<float> powerValues = new List<float>();
+                foreach(var entry in data.entries)
+                {
+                    powerValues.Add(entry.power);
+                }
+            
+                // On dessine !
+                powerGraph.ShowGraph(powerValues);
+            }
+        }
     }
 
     // 3. Mettre à jour les chiffres (comme avant)
@@ -92,29 +112,39 @@ public class MasterDashboardManager : MonoBehaviour
     // 4. Déplacer la caméra (Fini la vue de dessus !)
     void FocusCameraOnTurbine(string id)
     {
-        // On cherche toutes les étiquettes dans la scène
+        // 1. Chercher l'éolienne (comme avant)
         TurbineIdentifier[] allTurbines = FindObjectsByType<TurbineIdentifier>(FindObjectsSortMode.None);
 
         foreach (var turbine in allTurbines)
         {
-            // Si on trouve la bonne étiquette
             if (turbine.id == id)
             {
-                // On récupère sa position
+                // Position de la cible (pied de l'éolienne)
                 Vector3 targetPos = turbine.transform.position;
 
-                // On place la caméra : 30m plus haut, 60m en arrière
-                // Ajuste le -60f si tu veux être plus près
-                Vector3 offset = new Vector3(0, 30f, -60f); 
+                // Position de la caméra (Vue Drone : 30m haut, 60m arrière)
+                Vector3 endPosition = targetPos + new Vector3(0, 30f, -60f);
                 
-                cameraTransform.position = targetPos + offset;
-                
-                // On regarde le centre du mât (environ 60m de haut)
-                cameraTransform.LookAt(targetPos + new Vector3(0, 60f, 0));
-                
-                return; // Trouvé, on arrête !
+                // Point que la caméra doit regarder (le rotor, ~60m de haut)
+                Vector3 lookAtPosition = targetPos + new Vector3(0, 60f, 0);
+
+                // --- LE MAGIE DOTWEEN COMMENCE ICI ---
+
+                // A. On tue les animations en cours (si on clique frénétiquement)
+                cameraTransform.DOKill(); 
+
+                // B. On déplace la caméra vers la position finale
+                // DOMove(destination, durée)
+                cameraTransform.DOMove(endPosition, 2.0f).SetEase(Ease.InOutCubic);
+
+                // C. En même temps, on tourne la caméra pour regarder l'éolienne
+                // DOLookAt(cible, durée)
+                cameraTransform.DOLookAt(lookAtPosition, 2.0f).SetEase(Ease.InOutCubic);
+
+                Debug.Log("Vol vers : " + id);
+                return;
             }
         }
-        Debug.LogWarning("Éolienne introuvable : " + id);
+        Debug.LogWarning("Éolienne introuvable pour le vol : " + id);
     }
 }
