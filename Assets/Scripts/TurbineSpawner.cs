@@ -1,6 +1,6 @@
 using UnityEngine;
 using CesiumForUnity;
-using Unity.Mathematics; // Important pour Cesium
+using Unity.Mathematics; 
 
 public class TurbineSpawner : MonoBehaviour
 {
@@ -9,12 +9,11 @@ public class TurbineSpawner : MonoBehaviour
     public TurbineMapData mapData;     
     public Transform cesiumGeoreference; 
 
-    // --- C'EST CETTE PARTIE QUI MANQUAIT PEUT-ÊTRE ---
     void Start()
     {
         SpawnAll();
     }
-    // -------------------------------------------------
+    
 
     void SpawnAll()
     {

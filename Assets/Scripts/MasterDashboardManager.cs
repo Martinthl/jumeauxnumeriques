@@ -25,6 +25,8 @@ public class MasterDashboardManager : MonoBehaviour
     public CesiumGeoreference georeference; // Référence Cesium
     public float zoomDistance = 100.0f;     // Distance de la caméra
 
+    public WindowGraph powerGraph; // Référence au script graphique
+
     private string currentSelectedID = "";
 
     void Start()
