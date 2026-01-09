@@ -25,12 +25,13 @@ public class MasterDashboardManager : MonoBehaviour
     public TMP_Text tempText;
     public TMP_Text rotorText;
     public TMP_Text dateText;
-    
-    // (J'ai supprimé la partie Preview 3D ici)
+
+    [Header("Graphiques")]
+    public WindowGraph graphPowerScript; // Glisse ton Graph_Power ici
+    public WindowGraph graphWindScript;  // Glisse ton Graph_Wind ici
 
     [Header("Navigation 3D")]
     public Transform cameraTransform;       
-    public WindowGraph powerGraph; 
 
     private string currentSelectedID = "";
 
@@ -41,6 +42,7 @@ public class MasterDashboardManager : MonoBehaviour
 
     void Update()
     {
+        // Mise à jour en temps réel des stats si une turbine est sélectionnée
         if (!string.IsNullOrEmpty(currentSelectedID))
         {
             UpdateStatsUI(currentSelectedID);
@@ -66,19 +68,24 @@ public class MasterDashboardManager : MonoBehaviour
         currentSelectedID = id;
         if(titleText) titleText.text = "Turbine " + id;
         
-        // Déplacement de la caméra
         FocusCameraOnTurbine(id);
 
-        // Mise à jour du Graphique
-        if (powerGraph != null)
+        // --- MISE À JOUR DES 2 GRAPHIQUES ---
+        var data = statsData.turbines.Find(t => t.turbineID == id);
+        if (data != null)
         {
-            var data = statsData.turbines.Find(t => t.turbineID == id);
-            if (data != null)
+            List<float> powerList = new List<float>();
+            List<float> windList = new List<float>();
+
+            foreach(var entry in data.entries)
             {
-                List<float> powerValues = new List<float>();
-                foreach(var entry in data.entries) powerValues.Add(entry.power);
-                powerGraph.ShowGraph(powerValues);
+                powerList.Add(entry.power);
+                windList.Add(entry.windSpeed);
             }
+
+            // Envoyer les données aux scripts respectifs avec l'unité correcte
+            if (graphPowerScript != null) graphPowerScript.ShowGraph(powerList, "kW");
+            if (graphWindScript != null) graphWindScript.ShowGraph(windList, "m/s");
         }
     }
 
@@ -93,12 +100,14 @@ public class MasterDashboardManager : MonoBehaviour
             index = Mathf.Clamp(index, 0, data.entries.Count - 1);
             var entry = data.entries[index];
 
-            // Affichage des Textes
-            if(powerText) powerText.text = $"{entry.power:F2} kW";
-            if(windText) windText.text = $"{entry.windSpeed:F1} m/s";
-            if(tempText) tempText.text = $"{entry.ambientTemperature:F1} °C";
-            if(rotorText) rotorText.text = $"{entry.rotorSpeed:F1} RPM";
-            if(dateText) dateText.text = entry.timeInterval; 
+            // Affichage avec Couleurs et Unités corrigées
+            if(powerText) powerText.text = $"Puissance : <color=yellow>{entry.power:F2} kW</color>";
+            if(windText) windText.text = $"Vent : <color=cyan>{entry.windSpeed:F1} m/s</color>"; // Corrigé : m/s
+            
+            if(tempText) tempText.text = $"Température : {entry.ambientTemperature:F1} °C";
+            if(rotorText) rotorText.text = $"Rotor : {entry.rotorSpeed:F1} RPM";
+        
+            if(dateText) dateText.text = TimeManager.Instance.GetFormattedTime();
         }
     }
 
@@ -120,11 +129,13 @@ public class MasterDashboardManager : MonoBehaviour
         {
             cameraTransform.DOKill(); 
 
-            // Positionnement derrière l'éolienne
+            // Positionnement derrière l'éolienne (recul de 80m, hauteur de 40m)
             Vector3 targetPosition = targetTurbine.position - (targetTurbine.forward * 80f) + (Vector3.up * 40f);
+            
+            // On regarde le centre du rotor (hauteur de 60m)
             Vector3 lookAtTarget = targetTurbine.position + (Vector3.up * 60f);
 
-            cameraTransform.DOMove(targetTurbine.GetChild(2).transform.position, 2f).SetEase(Ease.OutCubic);
+            cameraTransform.DOMove(targetPosition, 2f).SetEase(Ease.OutCubic);
             cameraTransform.DOLookAt(lookAtTarget, 2f).SetEase(Ease.OutCubic);
         }
         else

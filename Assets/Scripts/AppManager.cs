@@ -6,11 +6,15 @@ public class AppManager : MonoBehaviour
     [Header("Pages de l'interface")]
     public GameObject pageGlobal;   
     public GameObject pageDetails;  
-    public GameObject pageAnalysis; // NOUVEAU : La 3ème page
+    public GameObject pageAnalysis; 
 
     [Header("Gestion Caméra")]
     public Transform cameraTransform;   
-    public Transform globalViewPoint;   
+    // Plus besoin de GlobalViewPoint public, on le mémorise tout seul
+
+    // Variables pour stocker la position de départ
+    private Vector3 initialPosition;
+    private Quaternion initialRotation;
 
     public static AppManager Instance;
 
@@ -21,39 +25,45 @@ public class AppManager : MonoBehaviour
 
     void Start()
     {
+        // 1. On sauvegarde la position exacte de la caméra au lancement du jeu
+        if (cameraTransform != null)
+        {
+            initialPosition = cameraTransform.position;
+            initialRotation = cameraTransform.rotation;
+        }
+
+        // 2. On lance le mode Global
         GoToGlobalMode();
     }
 
     // --- MODE ACCUEIL ---
     public void GoToGlobalMode()
     {
-        // On allume Global, on éteint TOUT le reste
+        // UI
         if(pageGlobal) pageGlobal.SetActive(true);
         if(pageDetails) pageDetails.SetActive(false);
         if(pageAnalysis) pageAnalysis.SetActive(false);
 
-        // Retour caméra au ciel
-        if (cameraTransform != null && globalViewPoint != null)
+        // Caméra : Retour à la position de départ mémorisée
+        if (cameraTransform != null)
         {
             cameraTransform.DOKill();
-            cameraTransform.DOMove(globalViewPoint.position, 2f).SetEase(Ease.InOutSine);
-            cameraTransform.DORotate(globalViewPoint.rotation.eulerAngles, 2f).SetEase(Ease.InOutSine);
+            
+            // On utilise les valeurs enregistrées au Start()
+            cameraTransform.DOMove(initialPosition, 2f).SetEase(Ease.InOutSine);
+            cameraTransform.DORotate(initialRotation.eulerAngles, 2f).SetEase(Ease.InOutSine);
         }
     }
 
-    // --- MODE DÉTAILS (LISTE) ---
     public void GoToDetailMode()
     {
-        // On allume Détails, on éteint le reste
         if(pageGlobal) pageGlobal.SetActive(false);
         if(pageDetails) pageDetails.SetActive(true);
         if(pageAnalysis) pageAnalysis.SetActive(false);
     }
 
-    // --- MODE ANALYSE (GRAPHIQUES) ---
     public void GoToAnalysisMode()
     {
-        // On allume Analyse, on éteint le reste
         if(pageGlobal) pageGlobal.SetActive(false);
         if(pageDetails) pageDetails.SetActive(false);
         if(pageAnalysis) pageAnalysis.SetActive(true);

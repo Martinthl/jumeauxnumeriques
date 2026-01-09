@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System; // Nécessaire pour convertir les secondes en Heures:Minutes
+using System;
 
 public class TimeManager : MonoBehaviour
 {
@@ -9,11 +9,16 @@ public class TimeManager : MonoBehaviour
 
     [Header("UI")]
     public Slider timeSlider;
-    public TMP_Text timeDisplayText; // Le texte 00:00:00
+    public TMP_Text timeDisplayText;
 
-    [Header("Temps")]
+    [Header("Réglages Temps")]
     [Range(0, 86400)]
-    public float currentTimeInSeconds = 28800; // Commence à 08:00
+    public float currentTimeInSeconds = 28800; // 08:00
+    
+    [Tooltip("Vitesse d'écoulement du temps. 1 = Temps réel. 60 = 1 minute par seconde.")]
+    public float timeSpeed = 1.0f; // Mets 10 ou 60 pour que ça avance plus vite
+
+    public bool isPaused = false;
 
     void Awake()
     {
@@ -24,31 +29,59 @@ public class TimeManager : MonoBehaviour
     {
         if (timeSlider != null)
         {
-            timeSlider.maxValue = 86400; // 24h en secondes
+            timeSlider.maxValue = 86400;
             timeSlider.wholeNumbers = true;
             timeSlider.value = currentTimeInSeconds;
-            
-            // Écouter le changement de valeur
             timeSlider.onValueChanged.AddListener(OnSliderChanged);
         }
-        UpdateUI();
     }
 
+    void Update()
+    {
+        // Si on n'est pas en pause, on avance le temps
+        if (!isPaused)
+        {
+            // On ajoute le temps écoulé * la vitesse
+            currentTimeInSeconds += Time.deltaTime * timeSpeed;
+
+            // Si on dépasse 24h (86400s), on revient à 00:00
+            if (currentTimeInSeconds >= 86400)
+            {
+                currentTimeInSeconds = 0;
+            }
+
+            // On met à jour le slider (qui mettra à jour l'UI via l'event)
+            if (timeSlider != null)
+            {
+                timeSlider.value = currentTimeInSeconds; 
+            }
+        }
+        
+        // Mise à jour du texte constante
+        UpdateTextUI();
+    }
+
+    // Appelée quand on bouge le slider à la souris
     public void OnSliderChanged(float value)
     {
         currentTimeInSeconds = value;
-        UpdateUI();
+        UpdateTextUI();
     }
 
-    void UpdateUI()
+    void UpdateTextUI()
     {
-        // Calcul mathématique pour transformer 3600 secondes en "01:00:00"
-        TimeSpan timeSpan = TimeSpan.FromSeconds(currentTimeInSeconds);
-        string timeString = string.Format("{0:00}:{1:00}:{2:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
-
         if (timeDisplayText != null)
         {
-            timeDisplayText.text = timeString;
+            TimeSpan timeSpan = TimeSpan.FromSeconds(currentTimeInSeconds);
+            // Affiche format HH:mm:ss (ex: 08:05:23)
+            timeDisplayText.text = string.Format("{0:00}:{1:00}:{2:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
         }
+    }
+    
+    // Petite fonction utilitaire pour que les autres scripts récupèrent le texte propre
+    public string GetFormattedTime()
+    {
+        TimeSpan timeSpan = TimeSpan.FromSeconds(currentTimeInSeconds);
+        return string.Format("{0:00}:{1:00}:{2:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
     }
 }
