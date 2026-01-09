@@ -9,11 +9,14 @@ public class TurbineSpawner : MonoBehaviour
     public TurbineMapData mapData;     
     public Transform cesiumGeoreference; 
 
+    [Header("Ajustement Hauteur")]
+    [Tooltip("Ajoute de la hauteur pour ne pas être sous terre (ex: 20 ou 50)")]
+    public double heightOffset = 0; 
+
     void Start()
     {
         SpawnAll();
     }
-    
 
     void SpawnAll()
     {
@@ -29,15 +32,15 @@ public class TurbineSpawner : MonoBehaviour
             GameObject obj = Instantiate(turbinePrefab, cesiumGeoreference);
             obj.name = "Turbine_" + data.id;
 
-            // 2. Positionnement
+            // 2. Positionnement (Avec la correction de hauteur)
             CesiumGlobeAnchor anchor = obj.GetComponent<CesiumGlobeAnchor>();
             if (anchor != null)
             {
-                anchor.longitudeLatitudeHeight = new double3(data.longitude, data.latitude, 0);
+                // On utilise heightOffset au lieu de 0 pour la hauteur
+                anchor.longitudeLatitudeHeight = new double3(data.longitude, data.latitude, heightOffset);
             }
 
-            // 3. Identification (Pour le tableau de bord)
-            // On ajoute le script seulement s'il n'est pas déjà dessus
+            // 3. Identification
             TurbineIdentifier ident = obj.GetComponent<TurbineIdentifier>();
             if (ident == null) ident = obj.AddComponent<TurbineIdentifier>();
             

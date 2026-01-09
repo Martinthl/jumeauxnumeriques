@@ -10,11 +10,13 @@ public class AppManager : MonoBehaviour
 
     [Header("Gestion Caméra")]
     public Transform cameraTransform;   
-    // Plus besoin de GlobalViewPoint public, on le mémorise tout seul
-
-    // Variables pour stocker la position de départ
+    
+    // Variables pour stocker la position de départ (Vue Globale)
     private Vector3 initialPosition;
     private Quaternion initialRotation;
+
+    [Header("Scripts Externes")]
+    public MasterDashboardManager masterScript; // Pour réinitialiser l'affichage détails
 
     public static AppManager Instance;
 
@@ -48,20 +50,27 @@ public class AppManager : MonoBehaviour
         if (cameraTransform != null)
         {
             cameraTransform.DOKill();
-            
-            // On utilise les valeurs enregistrées au Start()
             cameraTransform.DOMove(initialPosition, 2f).SetEase(Ease.InOutSine);
             cameraTransform.DORotate(initialRotation.eulerAngles, 2f).SetEase(Ease.InOutSine);
         }
     }
 
+    // --- MODE DÉTAILS (LISTE) ---
     public void GoToDetailMode()
     {
         if(pageGlobal) pageGlobal.SetActive(false);
         if(pageDetails) pageDetails.SetActive(true);
         if(pageAnalysis) pageAnalysis.SetActive(false);
+
+        // AJOUT : On demande au MasterDashboard de remettre l'affichage à zéro
+        // (Cache les données et réaffiche "Veuillez sélectionner...")
+        if (masterScript != null)
+        {
+            masterScript.ResetView();
+        }
     }
 
+    // --- MODE ANALYSE ---
     public void GoToAnalysisMode()
     {
         if(pageGlobal) pageGlobal.SetActive(false);
