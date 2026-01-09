@@ -4877,8 +4877,8 @@ MonoBehaviour:
   tempText: {fileID: 1053321784}
   rotorText: {fileID: 1978339666}
   dateText: {fileID: 1684445535}
-  graphPowerScript: {fileID: 0}
-  graphWindScript: {fileID: 0}
+  graphPowerScript: {fileID: 392643380}
+  graphWindScript: {fileID: 1550696739}
   cameraTransform: {fileID: 330585546}
 --- !u!114 &2098368520
 MonoBehaviour:

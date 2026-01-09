@@ -100,13 +100,19 @@ public class MasterDashboardManager : MonoBehaviour
             index = Mathf.Clamp(index, 0, data.entries.Count - 1);
             var entry = data.entries[index];
 
-            // Affichage avec Couleurs et Unités corrigées
+            // 1. Puissance (Jaune)
             if(powerText) powerText.text = $"Puissance : <color=yellow>{entry.power:F2} kW</color>";
-            if(windText) windText.text = $"Vent : <color=cyan>{entry.windSpeed:F1} m/s</color>"; // Corrigé : m/s
             
-            if(tempText) tempText.text = $"Température : {entry.ambientTemperature:F1} °C";
-            if(rotorText) rotorText.text = $"Rotor : {entry.rotorSpeed:F1} RPM";
-        
+            // 2. Vent (Cyan) - Correction de l'unité m/s et fermeture de la balise
+            if(windText) windText.text = $"Vent : <color=cyan>{entry.windSpeed:F1} m/s</color>";
+            
+            // 3. Température (Blanc ou Orange)
+            if(tempText) tempText.text = $"Température : <color=orange>{entry.ambientTemperature:F1} °C</color>";
+            
+            // 4. Rotor (Mappé sur ton texte 'Données' ou 'Rotor')
+            if(rotorText) rotorText.text = $"Vitesse Rotor : {entry.rotorSpeed:F1} RPM";
+            
+            // Date (Optionnel, si tu veux l'afficher en bas)
             if(dateText) dateText.text = TimeManager.Instance.GetFormattedTime();
         }
     }
